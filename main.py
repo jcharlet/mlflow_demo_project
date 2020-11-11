@@ -4,36 +4,33 @@
 
 import os
 import warnings
-import sys
 
-import pandas as pd
 import numpy as np
-from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
-from sklearn.model_selection import train_test_split
-from sklearn.linear_model import ElasticNet
-from urllib.parse import urlparse
 import mlflow
 import mlflow.sklearn
+import click
 
 import logging
-import tempfile
-import requests
-
-from load_data import load_data
-from train import train
 
 logging.basicConfig(level=logging.WARN)
 logger = logging.getLogger(__name__)
 
 
-def main():
+@click.command()
+@click.option("--alpha", default=0.5)
+@click.option("--l1_ratio", default=0.5)
+def main(alpha, l1_ratio):
     warnings.filterwarnings("ignore")
     np.random.seed(40)
 
-    # with mlflow.start_run() as active_run:
-    data = load_data()
+    with mlflow.start_run() as active_run:
+        load_data_run = mlflow.tracking.MlflowClient().get_run(mlflow.run(".", "load_data", parameters={}).run_id)
+        wine_quality_csv_uri = os.path.join(load_data_run.info.artifact_uri, "wine_quality-dir/wine_quality-red.csv")
+        mlflow.run(".", "train", parameters={"wine_quality_csv": wine_quality_csv_uri, "alpha": alpha, "l1_ratio": l1_ratio})
 
-    train(data)
+    # data = load_data()
+    #
+    # train(data)
 
 
 if __name__ == "__main__":

@@ -3,8 +3,19 @@ name: tutorial
 conda_env: conda.yaml
 
 entry_points:
+
+  load_data:
+    command: "python load_data.py"
+
+  train:
+    parameters:
+      wine_quality_csv: path
+      alpha: {type: float, default: 0.5}
+      l1_ratio: {type: float, default: 0.1}
+    command: "python train.py --wine_quality_csv {wine_quality_csv} --alpha {alpha} --l1_ratio {l1_ratio}"
+
   main:
     parameters:
       alpha: {type: float, default: 0.5}
       l1_ratio: {type: float, default: 0.1}
-    command: "python train.py {alpha} {l1_ratio}"
+    command: "python main.py --alpha {alpha} --l1_ratio {l1_ratio}"
